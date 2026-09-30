@@ -1,0 +1,22 @@
+# Example systemd unit. Adjust paths and the service user to your server.
+[Unit]
+Description=IT Ops Console
+After=network-online.target
+
+[Service]
+User=itops
+Group=itops
+WorkingDirectory=/opt/it-ops-console
+EnvironmentFile=/etc/it-ops-console/env
+# TLS terminates in gunicorn here; a reverse proxy (nginx, IIS ARR) works as well.
+ExecStart=/opt/it-ops-console/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:8443 \
+    --certfile /etc/it-ops-console/tls.crt --keyfile /etc/it-ops-console/tls.key \
+    --access-logfile - "app:create_app()"
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/it-ops-console
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

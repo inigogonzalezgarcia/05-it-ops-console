@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Audit log</h1>
+<form class="row" method="get"><label>Filter<input name="q" value="{{ q }}" placeholder="user, action or detail"></label><button type="submit">Filter</button></form>
+<div class="card"><table>
+  <thead><tr><th>When (UTC)</th><th>User</th><th>Action</th><th>Detail</th></tr></thead>
+  <tbody>{% for r in rows %}<tr><td>{{ r.at }}</td><td>{{ r.username }}</td><td>{{ r.action }}</td><td>{{ r.detail or '' }}</td></tr>
+  {% else %}<tr><td colspan="4">No entries.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

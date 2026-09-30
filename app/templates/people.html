@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>People</h1>
+<form class="row" method="get"><label>Search<input name="q" value="{{ q }}" placeholder="name, department or desk"></label><button type="submit">Search</button></form>
+<div class="card"><table>
+  <thead><tr><th>Name</th><th>Department</th><th>Floor</th><th>Desk</th><th>Device</th></tr></thead>
+  <tbody>{% for p in rows %}<tr><td>{{ p.display_name }}</td><td>{{ p.department }}</td><td>{{ p.floor }}</td>
+    <td><a href="{{ url_for('views.floors', floor=p.floor, desk=p.desk) }}">{{ p.desk }}</a></td><td>{{ p.hostname or '—' }}</td></tr>
+  {% else %}<tr><td colspan="5">Nobody matches.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

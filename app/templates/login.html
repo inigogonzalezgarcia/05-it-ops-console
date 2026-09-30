@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="login" method="post">
+  <h1>IT Ops Console</h1>
+  <p class="meta">Sign in with your directory account.</p>
+  <label for="username">Username</label>
+  <input id="username" name="username" autocomplete="username" required autofocus>
+  <label for="password">Password</label>
+  <input id="password" name="password" type="password" autocomplete="current-password" required>
+  <p><button class="primary" type="submit">Sign in</button></p>
+  <p class="meta">Access is by invitation. After your password you will be asked for a second factor.</p>
+  {% if demo %}<p class="meta">Demo mode: password <b>demo</b> for <b>alex.admin</b>, <b>sam.engineer</b> or <b>jo.viewer</b>
+    (the next page shows the authenticator code), or <b>new.tech</b> to try the first-time activation.</p>{% endif %}
+</form>
+{% endblock %}

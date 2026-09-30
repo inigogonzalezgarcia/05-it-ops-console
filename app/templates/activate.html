@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="login" method="post">
+  <h1>Activate your account</h1>
+  <p class="meta">We sent a 6-character code to {{ email }}. It expires in 10 minutes and can be used once.</p>
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <label for="code">Activation code</label>
+  <input id="code" name="code" maxlength="6" autocomplete="one-time-code" autocapitalize="characters" required autofocus>
+  <p><button class="primary" type="submit">Continue</button></p>
+  <p class="meta">No email? Sign in again in a minute to get a new code.</p>
+  {% if demo_mail %}<div class="flash"><b>Demo outbox</b> (only shown in demo mode):<br>{{ demo_mail.body.splitlines()[0] }}</div>{% endif %}
+</form>
+{% endblock %}

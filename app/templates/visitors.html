@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Visitors</h1>
+<form class="row" method="post">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <label>Visitor<input name="visitor_name" required></label>
+  <label>Company<input name="company"></label>
+  <label>Host<input name="host"></label>
+  <label>Date<input type="date" name="visit_date" value="{{ today }}"></label>
+  <label>Where<select name="location">{% for r in rooms %}<option>{{ r.name }}</option>{% endfor %}<option>Reception</option></select></label>
+  <button class="primary" type="submit">Register</button>
+</form>
+<div class="card"><table>
+  <thead><tr><th>Date</th><th>Visitor</th><th>Company</th><th>Host</th><th>Where</th><th>In</th><th>Out</th></tr></thead>
+  <tbody>{% for v in rows %}<tr><td>{{ v.visit_date }}</td><td>{{ v.visitor_name }}</td><td>{{ v.company or '' }}</td><td>{{ v.host or '' }}</td><td>{{ v.location or '' }}</td>
+    <td>{% if v.signed_in %}{{ v.signed_in[11:16] }}{% elif v.visit_date == today %}<form method="post" action="{{ url_for('views.visitor_sign', visitor_id=v.id, action='sign-in') }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button type="submit">Sign in</button></form>{% endif %}</td>
+    <td>{% if v.signed_out %}{{ v.signed_out[11:16] }}{% elif v.signed_in %}<form method="post" action="{{ url_for('views.visitor_sign', visitor_id=v.id, action='sign-out') }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button type="submit">Sign out</button></form>{% endif %}</td></tr>
+  {% else %}<tr><td colspan="7">No upcoming visitors.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

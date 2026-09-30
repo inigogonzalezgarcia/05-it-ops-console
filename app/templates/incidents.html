@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block content %}
+<h1>Incident centre</h1>
+<p class="meta">Health of internal services, most critical first. A change to "down" or "degraded" sends a webhook event.</p>
+<div class="toolbar"><form method="post" action="{{ url_for('views.incidents_run') }}" class="inline">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="primary" type="submit">Run checks now</button></form></div>
+<div class="card"><table>
+  <thead><tr><th>Service</th><th>Severity</th><th>Status</th><th class="num">Latency</th><th>Detail</th><th>Checked</th></tr></thead>
+  <tbody>{% for e in endpoints %}<tr><td>{{ e.name }}</td><td>{{ e.severity }}</td><td>{{ badge(e.status) }}</td>
+    <td class="num">{{ e.latency_ms ~ ' ms' if e.latency_ms else '-' }}</td><td>{{ e.detail or '' }}</td><td>{{ e.checked_at or 'never' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

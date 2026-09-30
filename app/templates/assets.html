@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block content %}
+<h1>Assets</h1>
+<p class="meta">Device inventory with status, basic compliance and data-quality checks.</p>
+<div class="toolbar">
+  {% for key, label in [('all', 'All'), ('offline', 'Offline / unknown'), ('noncompliant', 'Non-compliant'),
+                        ('unassigned', 'No user'), ('duplicates', 'Duplicate serials')] %}
+    <a class="pill {{ 'active' if view == key }}" href="{{ url_for('views.assets', view=key) }}">{{ label }}{% if key in counts %} ({{ counts[key] }}){% endif %}</a>
+  {% endfor %}
+</div>
+<div class="card"><table>
+  <thead><tr><th>Hostname</th><th>User</th><th>Model</th><th>Serial</th><th>Status</th><th>Compliance</th><th>Last seen</th><th>Remote query</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td>{{ r.hostname }}</td>
+      <td>{{ r.assigned_user or '—' }}</td>
+      <td>{{ r.manufacturer or '' }} {{ r.model or '' }}</td>
+      <td>{{ r.serial or '—' }}{% if r.duplicate %} {{ badge('duplicate') }}{% endif %}</td>
+      <td>{{ badge(r.status) }}</td>
+      <td>{{ badge('compliant' if r.compliant == 1 else 'non-compliant' if r.compliant == 0 else 'unknown') }}</td>
+      <td>{{ r.last_seen[:16] if r.last_seen else '—' }}</td>
+      <td>{% for kind in ('serial', 'software', 'health') %}
+        <form method="post" action="{{ url_for('views.asset_query', hostname=r.hostname, kind=kind) }}" class="inline">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}"><button type="submit">{{ kind }}</button>
+        </form>{% endfor %}</td>
+    </tr>
+  {% else %}<tr><td colspan="8">No devices match this view.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

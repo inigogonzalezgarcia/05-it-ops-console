@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Joiners and leavers</h1>
+<p class="meta">IT tasks for each person starting or leaving. Tick a task when it is done.</p>
+<form class="row" method="post">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <label>Type<select name="kind"><option value="join">Joiner</option><option value="leave">Leaver</option></select></label>
+  <label>Name<input name="person_name" required></label>
+  <label>Department<input name="department"></label>
+  <label>Date<input type="date" name="effective_date" required></label>
+  <button class="primary" type="submit">Create checklist</button>
+</form>
+<div class="grid2">
+{% for r in rows %}
+  {% set done = r.tasks|selectattr('done')|list|length %}
+  <div class="card">
+    <h2>{{ 'Joiner' if r.kind == 'join' else 'Leaver' }}: {{ r.person_name }}</h2>
+    <p class="meta">{{ r.department or '' }} &middot; {{ r.effective_date }} &middot; {{ done }}/{{ r.tasks|length }} done</p>
+    <ul class="tasks">{% for t in r.tasks %}<li>
+      <form method="post" action="{{ url_for('views.lifecycle_task', item_id=r.id, index=loop.index0) }}" class="inline">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+        <button type="submit" aria-pressed="{{ 'true' if t.done else 'false' }}">{{ '&#10003;'|safe if t.done else '&nbsp;&nbsp;'|safe }}</button> {{ t.task }}
+      </form></li>{% endfor %}</ul>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}

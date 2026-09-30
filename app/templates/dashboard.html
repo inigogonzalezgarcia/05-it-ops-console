@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block content %}
+<h1>Today</h1>
+<p class="meta">{{ s.total_assets }} managed devices &middot; <a href="{{ url_for('views.export_summary') }}">Export daily summary (CSV)</a></p>
+<section class="tiles">
+  <a class="tile" href="{{ url_for('views.incidents') }}"><div class="label">Services down</div>
+    <div class="value">{{ s.services_down }}</div><div class="note">{{ s.services_degraded }} degraded</div></a>
+  <a class="tile" href="{{ url_for('views.assets', view='offline') }}"><div class="label">Devices online</div>
+    <div class="value">{{ s.online }}</div><div class="note">{{ s.offline }} offline or unknown</div></a>
+  <a class="tile" href="{{ url_for('views.assets', view='noncompliant') }}"><div class="label">Non-compliant</div>
+    <div class="value">{{ s.noncompliant }}</div><div class="note">devices failing baseline</div></a>
+  <a class="tile" href="{{ url_for('views.warranty') }}"><div class="label">Warranty expired</div>
+    <div class="value">{{ s.warranty_expired }}</div><div class="note">{{ s.warranty_expiring }} expiring soon</div></a>
+  <a class="tile" href="{{ url_for('views.checklists') }}"><div class="label">Rooms not checked</div>
+    <div class="value">{{ s.rooms_not_checked|length }}</div><div class="note">{{ s.rooms_failing|length }} with failures today</div></a>
+</section>
+<div class="grid2">
+  <div>
+    <h2>Service status</h2>
+    <div class="card"><table>
+      <thead><tr><th>Service</th><th>Severity</th><th>Status</th><th class="num">Latency</th></tr></thead>
+      <tbody>{% for e in s.endpoints %}<tr><td>{{ e.name }}</td><td>{{ e.severity }}</td><td>{{ badge(e.status) }}</td>
+        <td class="num">{{ e.latency_ms ~ ' ms' if e.latency_ms else '-' }}</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  <div>
+    <h2>On call today</h2>
+    <div class="card"><table><tbody>
+      {% for r in s.on_call %}<tr><td>{{ r.engineer }}</td><td>{{ r.region }}</td><td>{{ r.start_time }}&ndash;{{ r.end_time }}</td></tr>
+      {% else %}<tr><td>Nobody on call today.</td></tr>{% endfor %}
+    </tbody></table></div>
+    <h2>Visitors today ({{ s.visitors_today|length }})</h2>
+    <div class="card"><table><tbody>
+      {% for v in s.visitors_today %}<tr><td>{{ v.visitor_name }}</td><td>{{ v.company }}</td><td>{{ v.host }}</td><td>{{ v.location }}</td></tr>
+      {% else %}<tr><td>No visitors today.</td></tr>{% endfor %}
+    </tbody></table></div>
+    <h2>Joiners and leavers with open tasks ({{ s.lifecycle_open|length }})</h2>
+    <div class="card"><table><tbody>
+      {% for l in s.lifecycle_open %}<tr><td>{{ 'Joiner' if l.kind == 'join' else 'Leaver' }}</td><td>{{ l.person_name }}</td>
+        <td>{{ l.effective_date }}</td><td class="num">{{ l.tasks|selectattr('done')|list|length }}/{{ l.tasks|length }}</td></tr>
+      {% else %}<tr><td>All done.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </div>
+</div>
+{% endblock %}

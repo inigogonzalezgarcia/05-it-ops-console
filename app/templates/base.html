@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}IT Ops Console{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="layout">
+  {% if current_user %}
+  <aside>
+    <div class="brand">IT Ops Console</div>
+    <nav>
+      {% for key, label in nav %}
+        <a href="{{ url_for('views.' ~ ('audit_log' if key == 'audit' else key)) }}"
+           class="{{ 'active' if request.endpoint and request.endpoint.startswith('views.' ~ key) }}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+    <div class="user">
+      {{ current_user }}
+      <form method="post" action="{{ url_for('views.logout') }}" class="inline">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+        <button type="submit">Sign out</button>
+      </form>
+    </div>
+  </aside>
+  {% endif %}
+  <main>
+    {% for message in get_flashed_messages() %}<div class="flash" role="status">{{ message }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

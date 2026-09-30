@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<form class="login" method="post">
+  <h1>Verification</h1>
+  <p class="meta">Enter the 6-digit code from your authenticator app.</p>
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <label for="code">Code</label>
+  <input id="code" name="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required autofocus>
+  <p><button class="primary" type="submit">Sign in</button></p>
+  <p class="meta">Lost your phone? Ask an administrator to reset your MFA.</p>
+  {% if demo_code %}<div class="flash"><b>Demo mode:</b> the current code is {{ demo_code }}.</div>{% endif %}
+</form>
+{% endblock %}

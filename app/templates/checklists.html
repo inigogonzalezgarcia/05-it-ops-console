@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block content %}
+<h1>Room checklists</h1>
+<p class="meta">Daily check of every meeting room before the first meeting. Uncheck an item if it fails.</p>
+{% for room in rooms %}
+  {% set run = last.get(room.name) %}
+  <h2>{{ room.name }} <span class="meta">&middot; floor {{ room.floor }} &middot; {{ room.capacity }} seats &middot;
+    {% if run and run.run_at.startswith(today) %}{{ badge('ok' if not run.failures else 'fail') }} checked {{ run.run_at[11:16] }} by {{ run.run_by }}
+    {% else %}{{ badge('pending') }} not checked today{% endif %}</span></h2>
+  <form class="card" method="post" action="{{ url_for('views.checklist_submit', room=room.name) }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <div class="checks">{% for item in items %}
+      <label><input type="checkbox" name="{{ item }}" value="ok" checked> {{ item }}</label>{% endfor %}</div>
+    <div class="toolbar"><input name="notes" placeholder="Notes (optional)" size="40"><button class="primary" type="submit">Save check</button></div>
+  </form>
+{% endfor %}
+<h2>Recent checks</h2>
+<div class="card"><table>
+  <thead><tr><th>When</th><th>Room</th><th>By</th><th>Result</th><th>Notes</th></tr></thead>
+  <tbody>{% for h in history %}<tr><td>{{ h.run_at }}</td><td>{{ h.room }}</td><td>{{ h.run_by }}</td>
+    <td>{{ badge('ok' if not h.failures else 'fail') }}{% if h.failures %} ({{ h.failures }}){% endif %}</td><td>{{ h.notes or '' }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

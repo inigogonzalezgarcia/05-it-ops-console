@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block content %}
+<h1>Admin</h1>
+<h2>Section access by role</h2>
+<p class="meta">Changes apply immediately, no code changes needed. The admin role always has full access.</p>
+<form method="post" class="card">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}"><input type="hidden" name="form" value="roles">
+  <table><thead><tr><th>Section</th>{% for role in roles %}<th>{{ role }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for key, label in sections.items() %}<tr><td>{{ label }}</td>
+    {% for role in roles %}<td><input type="checkbox" name="{{ role }}:{{ key }}" {{ 'checked' if key in matrix[role] }} {{ 'disabled' if role == 'admin' }} aria-label="{{ role }} {{ label }}"></td>{% endfor %}</tr>{% endfor %}</tbody></table>
+  <p><button class="primary" type="submit">Save access</button></p>
+</form>
+<h2>Invite a user</h2>
+<p class="meta">Only invited people can sign in. They activate their account with a code sent to this email, then set up an authenticator app.</p>
+<form class="row" method="post">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}"><input type="hidden" name="form" value="invite">
+  <label>Username (directory)<input name="username" required></label>
+  <label>Name<input name="display_name"></label>
+  <label>Email<input type="email" name="email" required></label>
+  <label>Role<select name="role">{% for role in roles %}<option {{ 'selected' if role == 'engineer' }}>{{ role }}</option>{% endfor %}</select></label>
+  <button class="primary" type="submit">Invite</button>
+</form>
+<h2>Users</h2>
+<div class="card"><table>
+  <thead><tr><th>User</th><th>Email</th><th>Status</th><th>Role</th><th>Invited by</th><th>Last sign-in</th><th>Actions</th></tr></thead>
+  <tbody>{% for u in users %}<tr><td>{{ u.username }}</td><td>{{ u.email or '' }}</td>
+    <td>{{ badge(u.status) }}</td>
+    <td>{% if u.username == current_user %}{{ u.role }} (you){% else %}
+      <form method="post" class="inline"><input type="hidden" name="csrf" value="{{ csrf_token }}"><input type="hidden" name="form" value="role">
+      <input type="hidden" name="username" value="{{ u.username }}">
+      <select name="role" onchange="this.form.submit()" aria-label="Role of {{ u.username }}">{% for role in roles %}<option {{ 'selected' if role == u.role }}>{{ role }}</option>{% endfor %}</select>
+      </form>{% endif %}</td>
+    <td>{{ u.invited_by or '' }}</td><td>{{ u.last_login or 'never' }}</td>
+    <td>{% if u.username != current_user %}
+      {% for action, label in ([('enable', 'Enable')] if u.status == 'disabled' else [('disable', 'Disable')]) + ([('reset_mfa', 'Reset MFA')] if u.status == 'active' else []) %}
+      <form method="post" class="inline"><input type="hidden" name="csrf" value="{{ csrf_token }}"><input type="hidden" name="form" value="{{ action }}">
+        <input type="hidden" name="username" value="{{ u.username }}"><button type="submit">{{ label }}</button></form>{% endfor %}{% endif %}</td>
+  </tr>{% endfor %}</tbody>
+</table></div>
+{% if outbox %}
+<h2>Email outbox (demo)</h2>
+<p class="meta">EMAIL_MODE=outbox keeps emails here instead of sending them. Use smtp or webhook in production.</p>
+<div class="card"><table><thead><tr><th>When</th><th>To</th><th>Subject</th></tr></thead>
+  <tbody>{% for m in outbox %}<tr><td>{{ m.created_at }}</td><td>{{ m.recipient }}</td><td>{{ m.subject }}</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+{% endblock %}

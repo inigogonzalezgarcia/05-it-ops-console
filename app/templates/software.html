@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Software inventory</h1>
+<p class="meta">Collected with the "software" remote query on each device.</p>
+<form class="row" method="get">
+  <label>Device<select name="host" onchange="this.form.submit()"><option value="">All devices</option>
+    {% for h in hosts %}<option {{ 'selected' if h.hostname == host }}>{{ h.hostname }}</option>{% endfor %}</select></label>
+  <label>Application<input name="q" value="{{ q }}" placeholder="e.g. Chrome"></label>
+  <button type="submit">Search</button>
+</form>
+<div class="card"><table>
+  {% if host or q %}
+    <thead><tr><th>Device</th><th>Application</th><th>Version</th><th>Publisher</th></tr></thead>
+    <tbody>{% for r in rows %}<tr><td>{{ r.hostname }}</td><td>{{ r.name }}</td><td>{{ r.version }}</td><td>{{ r.publisher }}</td></tr>
+    {% else %}<tr><td colspan="4">No data yet. Run the "software" query from the Assets page.</td></tr>{% endfor %}</tbody>
+  {% else %}
+    <thead><tr><th>Application</th><th>Publisher</th><th class="num">Devices</th></tr></thead>
+    <tbody>{% for r in rows %}<tr><td><a href="{{ url_for('views.software', q=r.name) }}">{{ r.name }}</a></td><td>{{ r.publisher }}</td><td class="num">{{ r.installs }}</td></tr>
+    {% else %}<tr><td colspan="3">No data yet. Run the "software" query from the Assets page.</td></tr>{% endfor %}</tbody>
+  {% endif %}
+</table></div>
+{% endblock %}

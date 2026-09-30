@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Floor map</h1>
+<div class="toolbar">{% for f in floors %}<a class="pill {{ 'active' if f == floor }}" href="{{ url_for('views.floors', floor=f) }}">Floor {{ f }}</a>{% endfor %}</div>
+<p class="meta">Fictional layout: four desk clusters per floor. Hover a desk to see who sits there.</p>
+<div class="floor" role="img" aria-label="Desk layout of floor {{ floor }}">
+  {% for d in desks %}
+    <div class="desk {{ 'taken' if d.display_name }} {{ 'highlight' if d.id == highlight }}"
+         style="grid-column: {{ d.x + 1 }}; grid-row: {{ d.y + 1 }}"
+         title="{{ d.id }}{{ ': ' ~ d.display_name ~ ' (' ~ d.department ~ ')' if d.display_name else ': free' }}">{{ d.id.split('-')[1] }}</div>
+  {% endfor %}
+</div>
+<h2>Teams by floor</h2>
+<div class="card"><table>
+  <thead><tr><th>Floor</th>{% for dep in departments %}<th class="num">{{ dep }}</th>{% endfor %}<th class="num">Total</th></tr></thead>
+  <tbody>{% for f, counts in by_floor.items() %}<tr><td>Floor {{ f }}</td>
+    {% for dep in departments %}<td class="num">{{ counts[dep] or '—' }}</td>{% endfor %}<td class="num">{{ counts.values()|sum }}</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

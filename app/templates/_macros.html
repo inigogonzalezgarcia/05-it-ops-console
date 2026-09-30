@@ -1,0 +1,9 @@
+{% macro badge(status) -%}
+  {%- set roles = {'online': ('good', '&#10003;'), 'up': ('good', '&#10003;'), 'active': ('good', '&#10003;'),
+                   'ok': ('good', '&#10003;'), 'compliant': ('good', '&#10003;'),
+                   'degraded': ('warning', '!'), 'expiring': ('warning', '!'), 'unknown': ('warning', '?'), 'duplicate': ('warning', '!'), 'pending': ('warning', '!'), 'invited': ('warning', '!'), 'disabled': ('critical', '&#10005;'),
+                   'offline': ('serious', '!'), 'fail': ('critical', '&#10005;'), 'down': ('critical', '&#10005;'),
+                   'expired': ('critical', '&#10005;'), 'non-compliant': ('critical', '&#10005;')} -%}
+  {%- set r = roles.get(status, ('', '')) -%}
+  <span class="badge {{ r[0] }}"><i></i><b>{{ r[1]|safe }}</b>{{ status }}</span>
+{%- endmacro %}

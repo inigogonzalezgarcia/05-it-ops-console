@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Shifts</h1>
+<p class="meta">Who covers which hours, by region. Times are local to each region.</p>
+<form class="row" method="post">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+  <label>Engineer<input name="engineer" required></label>
+  <label>Date<input type="date" name="shift_date" required></label>
+  <label>From<input type="time" name="start_time" value="08:00"></label>
+  <label>To<input type="time" name="end_time" value="17:00"></label>
+  <label>Region<select name="region"><option>EMEA</option><option>AMER</option><option>APAC</option></select></label>
+  <label>On call<select name="on_call"><option value="0">No</option><option value="1">Yes</option></select></label>
+  <button class="primary" type="submit">Add shift</button>
+</form>
+{% for day, rows in by_day.items() %}
+  <h2>{{ day }}</h2>
+  <div class="card"><table><tbody>{% for r in rows %}<tr><td>{{ r.engineer }}</td><td>{{ r.region }}</td><td>{{ r.start_time }}&ndash;{{ r.end_time }}</td>
+    <td>{{ 'On call' if r.on_call else '' }}</td><td><form method="post" action="{{ url_for('views.shift_delete', shift_id=r.id) }}" class="inline">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}"><button type="submit">Remove</button></form></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<p>No upcoming shifts.</p>{% endfor %}
+{% endblock %}

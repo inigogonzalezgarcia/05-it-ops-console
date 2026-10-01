@@ -1,0 +1,4 @@
+Flask>=3.0
+gunicorn>=22.0
+ldap3>=2.9   # only needed with OPS_AUTH_MODE=ldap
+segno>=1.6    # optional: draws the QR code for authenticator setup

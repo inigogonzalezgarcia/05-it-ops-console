@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+venv/
+.venv/
+
+# Local data, secrets and certificates: never commit these
+instance/
+*.db
+*.db-wal
+*.db-shm
+.env
+*.pem
+*.key
+*.crt
+*.pfx
+
+# Local AI tooling
+.claude/
+.agents/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
